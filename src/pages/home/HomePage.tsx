@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import EventCard from '@/pages/events/EventCard';
+import PostComposer from '@/pages/posts/PostComposer';
+import PostList from '@/pages/posts/PostList';
 import { useAppSelector } from '@/store';
 import { useHomeQuery } from '@/store/homeApi';
 import { usePermission } from '@/features/auth/permissions';
@@ -104,13 +106,18 @@ export default function HomePage() {
               action={canHostEvents ? { label: 'Host an event', to: '/events/host' } : undefined}
             />
           )}
-          <DiscoverSection
-            icon="collection"
-            title="Communities for you"
-            emptyTitle="Communities are coming"
-            emptyText="Spaces built around shared interests, matched to what you love."
-            action={canCreateCommunity ? { label: 'Start a community', to: '/communities/mine' } : undefined}
-          />
+          <section className="d-grid gap-3">
+            <div className="d-flex justify-content-between align-items-center">
+              <h2 className="h5 fw-bold mb-0 d-flex align-items-center gap-2"><i className="bi bi-collection text-primary" />Your feed</h2>
+              <div className="d-flex gap-2">
+                <Link to="/communities" className="btn btn-sm btn-outline-primary">Find communities</Link>
+                {canCreateCommunity && <Link to="/communities/new" className="btn btn-sm btn-outline-primary">Start a community</Link>}
+              </div>
+            </div>
+            <PostComposer />
+            <PostList emptyTitle="Your feed is quiet"
+                      emptyText="Join communities and follow people, and their posts show up here." />
+          </section>
         </div>
 
         <aside className="col-lg-4">

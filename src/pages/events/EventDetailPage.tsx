@@ -85,7 +85,7 @@ export default function EventDetailPage() {
       )}
       {message && <div className={`alert alert-${message.kind} mb-0`}>{message.text}</div>}
 
-      <section className="ev-hero rounded-4 p-4 p-md-5">
+      <section className="ev-hero rounded-4 p-4 p-md-5" style={e.coverUrl ? { backgroundImage: `linear-gradient(120deg, rgba(20, 38, 62, 0.85), rgba(45, 95, 134, 0.55)), url(${e.coverUrl})` } : undefined}>
         <div className="d-flex gap-4 align-items-start flex-wrap flex-md-nowrap">
           <div className="ev-hero__date">
             <span>{start.toLocaleString(undefined, { month: 'short' })}</span>

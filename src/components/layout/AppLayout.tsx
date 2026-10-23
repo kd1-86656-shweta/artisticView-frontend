@@ -5,6 +5,16 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { useLogoutMutation } from '@/store/authApi';
 import { loggedOut } from '@/store/authSlice';
 import { baseApi } from '@/store/baseApi';
+import { useChatsQuery } from '@/store/chatApi';
+import { ChatSocketProvider } from '@/features/chat/ChatSocketProvider';
+
+/** Total unread chat messages, kept live by the chat socket. */
+function UnreadBadge() {
+  const canChat = useAppSelector((s) => s.auth.session?.permissions.includes('CHAT_USE') ?? false);
+  const { data } = useChatsQuery(undefined, { skip: !canChat });
+  const total = data?.reduce((n, c) => n + c.unreadCount, 0) ?? 0;
+  return total > 0 ? <span className="chat-unread">{total > 99 ? '99+' : total}</span> : null;
+}
 
 /**
  * Signed-in shell. The menu is built from the feature list the backend returned for this user's roles,
@@ -31,7 +41,7 @@ export default function AppLayout() {
   };
 
   return (
-    <>
+    <ChatSocketProvider>
       <nav className="navbar navbar-expand-lg bg-body border-bottom sticky-top">
         <div className="container">
           <Logo to="/home" />
@@ -45,6 +55,7 @@ export default function AppLayout() {
                 <li className="nav-item" key={f.id}>
                   <NavLink className="nav-link d-flex align-items-center gap-2" to={f.route}>
                     <i className={`bi bi-${f.icon}`} /> {f.displayName}
+                    {f.name === 'MESSAGES' && <UnreadBadge />}
                   </NavLink>
                 </li>
               ))}
@@ -91,6 +102,6 @@ export default function AppLayout() {
       <main className="container py-4">
         <Outlet />
       </main>
-    </>
+    </ChatSocketProvider>
   );
 }

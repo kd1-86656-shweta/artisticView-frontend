@@ -39,6 +39,7 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useLazyCheckUsernameQuery,
+  useLazyMeQuery,
   useVerifyEmailMutation,
   useResendVerificationMutation,
   useForgotPasswordMutation,

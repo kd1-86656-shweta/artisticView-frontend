@@ -37,6 +37,7 @@ export default function EventCard({ event }: { event: EventItem }) {
           </span>
         </div>
       </div>
+      {event.coverUrl && <div className="ev-card__cover d-none d-sm-block" style={{ backgroundImage: `url(${event.coverUrl})` }} aria-hidden="true" />}
     </Link>
   );
 }

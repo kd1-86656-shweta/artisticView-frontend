@@ -16,6 +16,8 @@ export default defineConfig({
     proxy: {
       '/auth': { target: backend, changeOrigin: true },
       '/api': { target: backend, changeOrigin: true },
+      '/media': { target: backend, changeOrigin: true },
+      '/ws': { target: backend.replace(/^http/, 'ws'), ws: true, changeOrigin: true },
     },
   },
 });

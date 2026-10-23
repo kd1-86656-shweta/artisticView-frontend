@@ -133,6 +133,7 @@ export interface EventItem {
   location: string | null;
   meetingUrl: string | null;
   capacity: number | null;
+  coverUrl: string | null;
   status: 'SCHEDULED' | 'CANCELLED';
   host: UserSummary;
   collaborators: EventCollaborator[];
@@ -157,6 +158,7 @@ export interface EventRequest {
   location?: string;
   meetingUrl?: string;
   capacity?: number | null;
+  coverKey?: string;
   collaborators?: string[];
   promoteDays?: number;
 }
@@ -164,4 +166,132 @@ export interface EventRequest {
 export interface CursorPage<T> {
   items: T[];
   nextCursor: string | null;
+}
+
+export type MediaKind = 'AVATAR' | 'COVER' | 'EVENT' | 'COMMUNITY' | 'POST';
+
+export interface MediaUpload {
+  key: string;
+  url: string;
+}
+
+/** Profile fields to change; omitted fields stay as they are. Image keys come from an upload ("" removes). */
+export interface UpdateProfileRequest {
+  displayName?: string;
+  bio?: string;
+  interests?: string[];
+  links?: Record<string, string>;
+  avatarKey?: string;
+  coverKey?: string;
+  profileVisibility?: Profile['profileVisibility'];
+}
+
+export type CommunityRole = 'OWNER' | 'MODERATOR' | 'MEMBER';
+export type MembershipStatus = 'ACTIVE' | 'INVITED';
+
+export interface Community {
+  id: number;
+  slug: string;
+  name: string;
+  description: string | null;
+  rules: string | null;
+  visibility: 'PUBLIC' | 'PRIVATE';
+  coverUrl: string | null;
+  memberCount: number;
+  postCount: number;
+  creator: UserSummary;
+  myRole: CommunityRole | null;
+  myStatus: MembershipStatus | null;
+  canModerate: boolean;
+  createdAt: string;
+}
+
+/** Create or update; on update omitted fields stay. coverKey "" removes the cover. */
+export interface CommunityRequest {
+  name?: string;
+  slug?: string;
+  description?: string;
+  rules?: string;
+  visibility?: Community['visibility'];
+  coverKey?: string;
+}
+
+export interface CommunityMember {
+  user: UserSummary;
+  role: CommunityRole;
+  status: MembershipStatus;
+  since: string;
+}
+
+export interface Post {
+  id: number;
+  author: UserSummary;
+  community: { slug: string; name: string } | null;
+  title: string;
+  body: string | null;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  score: number;
+  myVote: -1 | 0 | 1;
+  commentCount: number;
+  canEdit: boolean;
+  canDelete: boolean;
+  createdAt: string;
+  editedAt: string | null;
+}
+
+/** communitySlug only on create. imageKey / videoKey "" removes; a post has one or the other. */
+export interface PostRequest {
+  communitySlug?: string;
+  title?: string;
+  body?: string;
+  imageKey?: string;
+  videoKey?: string;
+}
+
+export interface Comment {
+  id: number;
+  postId: number;
+  parentId: number | null;
+  author: UserSummary | null;
+  body: string | null;
+  deleted: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  createdAt: string;
+  editedAt: string | null;
+}
+
+export type PostSort = 'hot' | 'new' | 'top';
+
+export interface ChatMessage {
+  id: number;
+  conversationId: number;
+  sender: UserSummary | null;
+  body: string | null;
+  imageUrl: string | null;
+  deleted: boolean;
+  system: boolean;
+  createdAt: string;
+}
+
+export interface Chat {
+  id: number;
+  type: 'DIRECT' | 'GROUP';
+  title: string;
+  avatarUrl: string | null;
+  members: { user: UserSummary; role: 'ADMIN' | 'MEMBER'; online: boolean; lastReadMessageId: number | null }[];
+  lastMessage: ChatMessage | null;
+  unreadCount: number;
+  myRole: 'ADMIN' | 'MEMBER' | null;
+  createdAt: string;
+}
+
+/** Pushed over the WebSocket to /user/queue/chat. */
+export interface ChatEvent {
+  type: 'MESSAGE' | 'MESSAGE_DELETED' | 'READ' | 'TYPING' | 'CHAT_UPDATED' | 'REMOVED';
+  conversationId: number;
+  message: ChatMessage | null;
+  userId: number | null;
+  messageId: number | null;
 }

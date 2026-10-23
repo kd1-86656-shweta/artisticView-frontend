@@ -5,6 +5,7 @@ import { useLazyCheckUsernameQuery } from '@/store/authApi';
 import { useCreateEventMutation, useEventQuery, useUpdateEventMutation } from '@/store/eventsApi';
 import type { EventLocationType, EventRequest } from '@/types/api';
 import { toApiError } from '@/utils/errors';
+import ImageUpload from '@/components/form/ImageUpload';
 import { fromLocalInput, mapsUrl, toLocalInput } from './eventUtils';
 
 const CATEGORIES = ['Music', 'Hip hop', 'Listening party', 'Workshop', 'Tarot & healing', 'Art', 'Poetry', 'Comedy', 'Meetup', 'Other'];
@@ -39,6 +40,7 @@ export default function EventFormPage() {
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [people, setPeople] = useState<string[]>([]);
+  const [cover, setCover] = useState<{ key?: string; url: string | null }>({ url: null });
   const [personInput, setPersonInput] = useState('');
   const [personError, setPersonError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +55,7 @@ export default function EventFormPage() {
         locationType: existing.locationType, location: existing.location ?? '', meetingUrl: existing.meetingUrl ?? '',
         capacity: existing.capacity ? String(existing.capacity) : '', promoteDays: 0,
       });
+      setCover({ url: existing.coverUrl });
     }
   }, [existing]);
 
@@ -103,6 +106,7 @@ export default function EventFormPage() {
       location: form.locationType === 'IN_PERSON' ? form.location : '',
       meetingUrl: form.meetingUrl,
       capacity: form.capacity ? Number(form.capacity) : null,
+      ...(cover.key !== undefined ? { coverKey: cover.key } : {}),
     };
     try {
       const saved = editId
@@ -131,6 +135,10 @@ export default function EventFormPage() {
         <form onSubmit={onSubmit} noValidate className="d-grid gap-4">
           <section className="card border-0 shadow-sm"><div className="card-body p-4">
             <h2 className="h5 fw-bold mb-3"><i className="bi bi-info-circle me-2 text-primary" />About the event</h2>
+            <div className="mb-3">
+              <label className="form-label fw-medium">Cover image <span className="text-body-secondary fw-normal">(optional)</span></label>
+              <ImageUpload kind="EVENT" shape="wide" label="Add a cover image" url={cover.url} onChange={(key, url) => setCover({ key, url })} />
+            </div>
             <div className="mb-3">
               <label htmlFor="title" className="form-label fw-medium">Title</label>
               <input id="title" className="form-control form-control-lg" maxLength={120} value={form.title}
