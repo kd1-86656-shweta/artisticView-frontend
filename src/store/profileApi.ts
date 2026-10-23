@@ -1,3 +1,4 @@
+import { UPLOAD_BASE } from '@/config/app';
 import { baseApi } from './baseApi';
 import type { MediaKind, MediaUpload, Profile, UpdateProfileRequest } from '@/types/api';
 
@@ -16,7 +17,7 @@ export const profileApi = baseApi.injectEndpoints({
       query: ({ file, kind }) => {
         const body = new FormData();
         body.append('file', file);
-        return { url: 'api/v1/media/images', method: 'POST', params: { kind }, body };
+        return { url: `${UPLOAD_BASE}api/v1/media/images`, method: 'POST', params: { kind }, body };
       },
     }),
   }),

@@ -1,0 +1,37 @@
+# SITE_ADDRESS is the domain(s), e.g. "artisticview.in, www.artisticview.in" -> Caddy fetches HTTPS certificates itself.
+# Use ":80" to run over plain HTTP (local testing).
+{$SITE_ADDRESS} {
+	encode zstd gzip
+	request_body {
+		max_size 110MB
+	}
+
+	# API, auth, uploaded media and the chat WebSocket go to Spring Boot.
+	@backend path /api/* /auth/* /media/* /ws /ws/* /actuator/health
+	handle @backend {
+		reverse_proxy backend:8080
+	}
+
+	# Hashed build assets never change; cache them hard.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# Everything else is the single-page app.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}
+
+# Jenkins UI on its own subdomain.
+{$JENKINS_ADDRESS} {
+	reverse_proxy jenkins:8080
+}

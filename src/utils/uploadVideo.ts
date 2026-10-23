@@ -1,3 +1,4 @@
+import { UPLOAD_BASE } from '@/config/app';
 import type { ApiEnvelope, MediaUpload } from '@/types/api';
 
 /**
@@ -7,7 +8,7 @@ import type { ApiEnvelope, MediaUpload } from '@/types/api';
 export function uploadVideo(file: File, accessToken: string | null, onProgress: (percent: number) => void): Promise<MediaUpload> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/v1/media/videos');
+    xhr.open('POST', `${UPLOAD_BASE}api/v1/media/videos`);
     if (accessToken) xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));

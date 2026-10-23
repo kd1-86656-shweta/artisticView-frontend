@@ -6,6 +6,10 @@ import type { ChatEvent } from '@/types/api';
 
 const TYPING_MS = 4000;
 
+/** Hosts that cannot proxy WebSockets (Vercel) point VITE_WS_URL at the backend; otherwise use this origin. */
+const WS_URL = import.meta.env.VITE_WS_URL
+  || `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`;
+
 interface ChatSocket {
   connected: boolean;
   /** userIds typing right now, per chat. */
@@ -94,7 +98,7 @@ export function ChatSocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!canChat) return undefined;
     const c = new Client({
-      brokerURL: `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`,
+      brokerURL: WS_URL,
       reconnectDelay: 3000,
       heartbeatIncoming: 20000,
       heartbeatOutgoing: 20000,
